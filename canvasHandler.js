@@ -1,7 +1,7 @@
 class ScreenCanvas {
   canvas;
   ctx;
-  directions = [];
+  arrows = [];
   rafId = null;
 
   constructor() {
@@ -17,8 +17,8 @@ class ScreenCanvas {
     this.loop();
   }
 
-  setArrowDirections(directions) {
-    this.directions = directions;
+  setArrows(arrows) {
+    this.arrows = arrows;
   }
 
   resizeCanvas() {
@@ -35,10 +35,16 @@ class ScreenCanvas {
     const { ctx, canvas } = this;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (!this.directions) return;
+    if (!this.arrows) return;
 
-    for (const direction of this.directions) {
-      this.drawArrow(ctx, canvas.width / 2, canvas.height / 2, 100, direction);
+    for (const arrow of this.arrows) {
+      this.drawArrow(
+        ctx,
+        canvas.width / 2,
+        canvas.height / 2,
+        arrow.distance,
+        arrow.angle
+      );
     }
   }
 
