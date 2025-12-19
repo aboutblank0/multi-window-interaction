@@ -1,7 +1,7 @@
 //Need to requestAnimationFrame to smooth out animation
 //Fix not pointing exactly to the middle.
+const messageInterval = 10;
 
-const messageInterval = 100;
 const channel = new BroadcastChannel("multi-window");
 const canvas = new ScreenCanvas();
 
@@ -26,6 +26,15 @@ channel.onmessage = (event) => {
     console.log(`Cleaned id ${id} from list`);
     delete windows[id];
   }
+};
+
+setInterval(() => {
+  const position = { x: window.screenX, y: window.screenY };
+  channel.postMessage({
+    id: randomId.toString(),
+    position: position,
+    time: Date.now(),
+  });
 
   //loop through every window and make a direction
   var directions = [];
@@ -37,13 +46,4 @@ channel.onmessage = (event) => {
   }
 
   canvas.setArrowDirections(directions);
-};
-
-setInterval(() => {
-  const position = { x: window.screenX, y: window.screenY };
-  channel.postMessage({
-    id: randomId.toString(),
-    position: position,
-    time: Date.now(),
-  });
 }, messageInterval);
