@@ -40,7 +40,7 @@ setInterval(() => {
   });
 
   //loop through every window and make a direction
-  var arrows = [];
+  var lines = [];
   for (const other in windows) {
     const position = windows[other].position;
     const thisCenterX = window.screenX + window.outerWidth / 2;
@@ -55,8 +55,8 @@ setInterval(() => {
     const angle = Math.atan2(dy, dx);
     const distance = Math.hypot(dx, dy);
 
-    arrows.push({ angle, distance });
+    lines.push({ angle, distance });
   }
 
-  canvas.setArrows(arrows);
+  canvas.setLines(lines);
 }, sendInterval);

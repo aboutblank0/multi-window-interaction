@@ -1,7 +1,7 @@
 class ScreenCanvas {
   canvas;
   ctx;
-  arrows = [];
+  lines = [];
   rafId = null;
 
   constructor() {
@@ -17,8 +17,16 @@ class ScreenCanvas {
     this.loop();
   }
 
-  setArrows(arrows) {
-    this.arrows = arrows;
+  setLines(lines) {
+    this.lines = lines.map((newLine, i) => {
+      const prev = this.lines[i] || {};
+      return {
+        targetAngle: newLine.angle,
+        targetDistance: newLine.distance,
+        currentAngle: prev.currentAngle ?? newLine.angle,
+        currentDistance: prev.currentDistance ?? newLine.distance,
+      };
+    });
   }
 
   resizeCanvas() {
@@ -35,40 +43,45 @@ class ScreenCanvas {
     const { ctx, canvas } = this;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (!this.arrows) return;
+    if (!this.lines) return;
 
-    for (const arrow of this.arrows) {
-      this.drawArrow(
+    const alpha = 0.1; // smoothing factor
+
+    for (const line of this.lines) {
+      // Smooth angle using shortest path
+      line.currentAngle = this.lerpAngle(
+        line.currentAngle,
+        line.targetAngle,
+        alpha
+      );
+      line.currentDistance +=
+        (line.targetDistance - line.currentDistance) * alpha;
+
+      this.drawLine(
         ctx,
         canvas.width / 2,
         canvas.height / 2,
-        arrow.distance,
-        arrow.angle
+        line.currentDistance,
+        line.currentAngle
       );
     }
   }
 
-  drawArrow(ctx, x, y, length, angle) {
-    const headLength = 10;
+  lerpAngle(current, target, alpha) {
+    let diff = target - current;
+    diff = ((diff + Math.PI) % (2 * Math.PI)) - Math.PI;
+    return current + diff * alpha;
+  }
+
+  drawLine(ctx, x, y, length, angle) {
     const endX = x + length * Math.cos(angle);
     const endY = y + length * Math.sin(angle);
 
     ctx.beginPath();
+    ctx.lineWidth = 15;
     ctx.moveTo(x, y);
     ctx.lineTo(endX, endY);
     ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(endX, endY);
-    ctx.lineTo(
-      endX - headLength * Math.cos(angle - Math.PI / 6),
-      endY - headLength * Math.sin(angle - Math.PI / 6)
-    );
-    ctx.lineTo(
-      endX - headLength * Math.cos(angle + Math.PI / 6),
-      endY - headLength * Math.sin(angle + Math.PI / 6)
-    );
-    ctx.closePath();
     ctx.fill();
   }
 
